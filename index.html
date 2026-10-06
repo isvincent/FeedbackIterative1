@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 反饋與迭代課程設計｜首頁</title>
+<meta name="description" content="高中 AI 反饋與迭代課程設計：8 個互動教學網頁的總入口">
+<style>
+:root{
+  --ink:#1f2544; --muted:#4a5072; --card:#ffffff;
+  --c1:#ff5d73; --c2:#ff9f1c; --c3:#ffd23f; --c4:#3ddc97; --c5:#2ec4b6; --c6:#4d9de0; --c7:#7b5cff; --c8:#e15fd8;
+  --fs:20px;
+}
+*{box-sizing:border-box}
+html{font-size:var(--fs);scroll-behavior:smooth}
+body{margin:0;font-family:"Microsoft JhengHei","微軟正黑體","PingFang TC","Noto Sans TC",sans-serif;color:var(--ink);line-height:1.7;
+  background:linear-gradient(135deg,#fff1f6 0%,#fff8e1 30%,#e8fff5 62%,#e9f1ff 100%);background-attachment:fixed;min-height:100vh;overflow-x:hidden}
+button,input,select{font:inherit;color:inherit}
+.blob{position:fixed;border-radius:50%;filter:blur(40px);opacity:.45;z-index:-1;animation:float 14s ease-in-out infinite}
+.b1{width:340px;height:340px;background:#ff9fb2;left:-80px;top:-60px}
+.b2{width:300px;height:300px;background:#ffe066;right:-60px;top:28%;animation-delay:-4s}
+.b3{width:380px;height:380px;background:#8ce6c4;left:20%;bottom:-140px;animation-delay:-8s}
+.b4{width:260px;height:260px;background:#b5a8ff;right:12%;bottom:8%;animation-delay:-2s}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(30px,-26px) scale(1.08)}}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px 120px}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(10px);border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c6),var(--c7),var(--c8)) 1}
+.topbar .in{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.logo{font-weight:900;font-size:1.05rem;margin-right:auto;display:flex;align-items:center;gap:8px}
+.logo span{background:linear-gradient(90deg,var(--c1),var(--c7));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tbtn{border:0;border-radius:999px;padding:8px 16px;background:#fff;box-shadow:0 2px 8px rgba(40,40,90,.12);cursor:pointer;font-weight:700;font-size:.9rem;transition:transform .15s}
+.tbtn:hover{transform:translateY(-2px)} .tbtn.on{background:var(--ink);color:#fff}
+.fsgroup{display:flex;gap:4px}
+
+/* hero */
+.hero{text-align:center;padding:44px 0 20px}
+.badge{display:inline-block;background:#fff;border-radius:999px;padding:6px 18px;font-weight:800;color:var(--c7);box-shadow:0 3px 10px rgba(123,92,255,.2);font-size:.95rem}
+h1{font-size:clamp(2rem,5.6vw,3.4rem);line-height:1.25;margin:18px 0 10px;font-weight:900}
+h1 .g{background:linear-gradient(90deg,var(--c1),var(--c2) 30%,var(--c5) 60%,var(--c7));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:1.1rem;color:var(--muted);max-width:820px;margin:0 auto}
+.wave{display:inline-block;animation:wave 2s infinite;transform-origin:70% 70%}
+@keyframes wave{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(14deg)}20%{transform:rotate(-8deg)}}
+
+/* cycle */
+.panel{background:rgba(255,255,255,.85);border-radius:28px;box-shadow:0 10px 30px rgba(40,40,90,.1);padding:26px;margin:26px 0}
+.panel h2{margin:0 0 6px;font-size:1.45rem}
+.panel .sub{margin:0 0 16px;color:var(--muted)}
+.cycle{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px}
+.node{border:0;cursor:pointer;border-radius:22px;padding:14px 18px;min-width:130px;color:#fff;font-weight:900;font-size:1.05rem;box-shadow:0 6px 0 rgba(0,0,0,.15);transition:transform .2s}
+.node small{display:block;font-weight:700;font-size:.85rem;opacity:.95}
+.node:hover,.node.act{transform:translateY(-4px) scale(1.06)}
+.node.act{outline:4px solid var(--ink);outline-offset:3px}
+.arrow{font-size:1.6rem;color:#9aa0c3;font-weight:900}
+.cyc-info{margin-top:18px;border-radius:18px;padding:16px 20px;background:#f6f4ff;border-left:8px solid var(--c7);font-size:1.05rem;min-height:3.4em}
+.cyc-ctrl{margin-top:12px;text-align:center}
+
+/* progress */
+.prog{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.bar{flex:1;min-width:200px;height:26px;border-radius:999px;background:#eceaf8;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--c4),var(--c5),var(--c6),var(--c7));border-radius:999px;transition:width .6s}
+.prog b{font-size:1.1rem}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0 18px}
+.search{flex:1;min-width:230px;border:3px solid #e2defa;border-radius:999px;padding:10px 20px;background:#fff;font-size:1rem;outline:none}
+.search:focus{border-color:var(--c7)}
+.chip{border:0;border-radius:999px;padding:7px 16px;background:#fff;cursor:pointer;font-weight:700;font-size:.92rem;box-shadow:0 2px 6px rgba(40,40,90,.1);transition:all .15s}
+.chip.on{background:var(--c7);color:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px}
+.grid>*{min-width:0}
+.card{position:relative;background:var(--card);border-radius:26px;overflow:hidden;box-shadow:0 8px 24px rgba(40,40,90,.12);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s;animation:pop .5s both}
+.card:hover{transform:translateY(-8px) rotate(-.4deg);box-shadow:0 18px 36px rgba(40,40,90,.2)}
+@keyframes pop{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+.chead{padding:20px 22px 16px;color:#fff;position:relative}
+.num{position:absolute;right:16px;top:8px;font-size:3.6rem;font-weight:900;opacity:.28;line-height:1}
+.emo{font-size:2.6rem;line-height:1;display:inline-block;transition:transform .3s}
+.card:hover .emo{transform:scale(1.2) rotate(-10deg)}
+.chead h3{margin:8px 0 0;font-size:1.25rem;line-height:1.4;text-shadow:0 1px 2px rgba(0,0,0,.18)}
+.cbody{padding:16px 22px 20px;display:flex;flex-direction:column;gap:12px;flex:1}
+.cbody p{margin:0;color:var(--muted);font-size:1rem}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.85rem;padding:3px 12px;border-radius:999px;background:#f1effc;color:#4b3fb0;font-weight:700}
+.acts{display:flex;gap:10px;margin-top:auto;flex-wrap:wrap}
+.go,.pv{flex:1;text-align:center;text-decoration:none;border:0;border-radius:16px;padding:12px 10px;font-weight:900;font-size:1rem;cursor:pointer;transition:transform .15s,filter .15s}
+.go{color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.18)} .go:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.pv{background:#f3f3fa;color:var(--ink)} .go:hover,.pv:hover{filter:brightness(1.07)}
+.seen{position:absolute;left:14px;top:12px;background:#fff;color:#18a35d;font-weight:900;border-radius:999px;padding:2px 12px;font-size:.85rem;display:none}
+.card.visited .seen{display:block}
+.card.visited .chead h3{margin-top:30px}
+.key{font-size:.85rem;color:#8a8fb0}
+.empty{text-align:center;font-size:1.2rem;color:var(--muted);padding:30px;display:none}
+
+/* quiz */
+.qopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.qopt{border:3px solid #ece9ff;background:#fff;border-radius:18px;padding:14px 16px;cursor:pointer;text-align:left;font-weight:700;font-size:1rem;transition:all .15s}
+.qopt:hover{border-color:var(--c2);transform:translateY(-2px)}
+.qres{margin-top:14px;font-size:1.05rem}
+.qres a{color:var(--c7);font-weight:900}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(20,20,50,.6);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}
+.mbox{background:#fff;border-radius:24px;width:min(1100px,100%);height:min(88vh,900px);display:flex;flex-direction:column;overflow:hidden;animation:pop .3s}
+.mhead{display:flex;align-items:center;gap:10px;padding:12px 18px;font-weight:900;font-size:1.05rem;color:#fff}
+.mhead .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mhead a,.mhead button{border:0;background:#fff;color:var(--ink);border-radius:999px;padding:6px 14px;font-weight:900;cursor:pointer;text-decoration:none;font-size:.92rem;white-space:nowrap}
+.mbox iframe{flex:1;border:0;width:100%}
+
+/* toast + confetti */
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(140%);background:var(--ink);color:#fff;padding:12px 24px;border-radius:999px;font-weight:800;z-index:120;transition:transform .35s;max-width:calc(100% - 32px);text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:110}
+footer{text-align:center;color:var(--muted);margin-top:40px;font-size:.95rem}
+.kbd{display:inline-block;border:2px solid #cfcbe8;border-bottom-width:4px;border-radius:8px;padding:0 8px;background:#fff;font-weight:800}
+
+@media (max-width:600px){
+  :root{--fs:18px}
+  .grid{grid-template-columns:1fr}
+  .arrow{display:none}
+  .node{min-width:0;flex:1 1 40%}
+  .panel{padding:18px;border-radius:22px}
+  .logo{width:100%}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+
+<div class="topbar"><div class="in">
+  <div class="logo">🔁 <span>AI 反饋與迭代課程設計</span></div>
+  <div class="fsgroup" role="group" aria-label="字體大小">
+    <button class="tbtn" data-fs="18" title="標準字">A</button>
+    <button class="tbtn on" data-fs="20" title="大字">A+</button>
+    <button class="tbtn" data-fs="23" title="特大字">A++</button>
+  </div>
+  <button class="tbtn" id="sndBtn" title="音效開關">🔊 音效開</button>
+  <button class="tbtn" id="rndBtn" title="隨機挑一頁">🎲 隨機</button>
+</div></div>
+
+<div class="wrap">
+  <section class="hero">
+    <span class="badge">🎓 高中教師課程設計資源中心</span>
+    <h1><span class="wave">👋</span> 讓 AI 成為<span class="g">思考的夥伴</span><br>而不是答案機</h1>
+    <p class="lead">這裡收錄 8 個互動網頁，從設計理念、迭代循環、教學方法、跨科實例到評量規準，帶你設計「先想 → 問 AI → 判斷 → 修正 → 反思」的課程。</p>
+  </section>
+
+  <section class="panel" aria-labelledby="cycTitle">
+    <h2 id="cycTitle">🔄 互動體驗：AI 反饋迭代循環</h2>
+    <p class="sub">點一下每個階段看看重點，或按「自動播放」走完一整輪。</p>
+    <div class="cycle" id="cycle"></div>
+    <div class="cyc-info" id="cycInfo">👆 從「① 自己先想」開始吧！</div>
+    <div class="cyc-ctrl"><button class="tbtn" id="playBtn">▶ 自動播放</button></div>
+  </section>
+
+  <section class="panel">
+    <div class="prog">
+      <b>📈 我的瀏覽進度</b>
+      <div class="bar"><i id="barFill"></i></div>
+      <b id="progTxt">0 / 8</b>
+      <button class="tbtn" id="resetBtn">↺ 重設</button>
+    </div>
+  </section>
+
+  <h2 style="font-size:1.5rem;margin:30px 0 10px">📚 全部 8 個網頁</h2>
+  <div class="filters">
+    <input class="search" id="search" type="search" placeholder="🔍 搜尋關鍵字，例如：測驗、評量、實例…" aria-label="搜尋網頁">
+  </div>
+  <div class="chips" id="chips" style="margin-bottom:20px"></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty">😅 找不到符合的網頁，換個關鍵字試試！</div>
+
+  <section class="panel" style="margin-top:36px">
+    <h2>🧭 小幫手：我該先看哪一頁？</h2>
+    <p class="sub">選一個你現在最需要的，幫你推薦適合的網頁。</p>
+    <div class="qopts" id="qopts"></div>
+    <div class="qres" id="qres"></div>
+  </section>
+
+  <footer>
+    ⌨️ 小技巧：按 <span class="kbd">1</span>～<span class="kbd">8</span> 直接開啟對應網頁，按 <span class="kbd">R</span> 隨機挑一頁，<span class="kbd">Esc</span> 關閉預覽。<br>
+    每個網頁右下角都有「🏠 回首頁」按鈕。
+  </footer>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="網頁預覽">
+  <div class="mbox">
+    <div class="mhead" id="mhead"><span class="t" id="mtitle"></span><a id="mopen" href="#">開啟完整頁面 ↗</a><button id="mclose">✕ 關閉</button></div>
+    <iframe id="mframe" title="網頁預覽"></iframe>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<canvas id="confetti"></canvas>
+
+<script>
+const PAGES=[
+ {f:"高中AI反饋與迭代課程設計1.html",e:"🧰",c:"var(--c1)",t:"AI 反饋與迭代課程設計（教師工具）",
+  d:"先人後 AI、判斷後採納、多版本後定稿。含 50 分鐘課堂流程、四學科實例、提示詞產生器、學習單與理解測驗。",
+  tags:["課堂流程","跨科實例","提示詞","學習單","測驗","評量"]},
+ {f:"高中AI反饋與迭代課程設計2.html",e:"🎭",c:"var(--c2)",t:"AI 三角色回饋互動網頁",
+  d:"把 AI 變成理解檢查者、錯誤偵測者、創意激發者。可產生課程流程、套用提示詞模板、記錄使用歷程。",
+  tags:["三角色回饋","產生器","提示詞","歷程紀錄","測驗","評量"]},
+ {f:"高中AI反饋與迭代課程設計3.html",e:"🪜",c:"var(--c5)",t:"AI 反饋迭代六階段（教師互動版）",
+  d:"初稿、提問、判斷、修改、比較、反思六階段；國文、自然、社會、校園專題四個實例與練習區。",
+  tags:["迭代循環","跨科實例","提示詞","找錯方法","測驗","評量"]},
+ {f:"高中AI反饋與迭代課程設計4.html",e:"🔁",c:"var(--c4)",t:"讓學生用 AI 學會反饋、迭代與創造",
+  d:"四個迭代回路、七步驟設計流程、創造力來自有品質的變異，附課堂提示語產生器與評量規準試算。",
+  tags:["迭代循環","設計步驟","創造力","產生器","評量"]},
+ {f:"高中AI反饋與迭代課程設計5.html",e:"💬",c:"var(--c6)",t:"與 AI 對話，而非向 AI 要答案",
+  d:"PGERI 五環迭代循環、六大教學策略、六步驟操作流程、跨科實例、陷阱對策與自我檢核表。",
+  tags:["迭代循環","教學策略","設計步驟","跨科實例","自我檢核","評量"]},
+ {f:"高中AI反饋與迭代課程設計6.html",e:"🪞",c:"var(--c7)",t:"讓 AI 成為思考的鏡子",
+  d:"後設認知、回饋三問、雙鑽石模型等理論基礎，四大課堂機制、五步驟設計與迭代能力 Rubric。",
+  tags:["理論基礎","教學策略","設計步驟","自我檢核","評量"]},
+ {f:"高中AI反饋與迭代課程設計7.html",e:"🤝",c:"#14998a",t:"與 AI 共思：PGCR 迭代迴圈",
+  d:"三大原則、先思—生成—批判—修正迴圈、五大教學方法，以 6 週科普寫作專題示範評量與陷阱對策。",
+  tags:["迭代循環","教學策略","跨科實例","評量"]},
+ {f:"高中AI反饋與迭代課程設計8.html",e:"🧭",c:"var(--c8)",t:"反饋與迭代：AI 時代課程設計指南",
+  d:"Human → AI → Human 五步迴圈、為何一次性提問會失敗、五大方法、六步驟備課、三個課堂實例與自我檢核。",
+  tags:["迭代循環","理論基礎","設計步驟","跨科實例","自我檢核","評量"]}
+];
+const CYCLE=[
+ {n:"① 自己先想",s:"V0 初稿",c:"var(--c1)",i:"🧠 學生先獨立寫下想法、草稿或解法（V0）。沒有 V0，就沒有可以比較的進步。"},
+ {n:"② 問 AI",s:"指定回饋任務",c:"var(--c2)",i:"❓ 帶著 V0 去問：請 AI 依規準挑毛病、扮演反方、或只提問不給答案。"},
+ {n:"③ 人來判斷",s:"接受／修改／拒絕",c:"var(--c5)",i:"⚖️ AI 也會錯！逐條判斷建議是否合理，事實要用兩個來源查核。"},
+ {n:"④ 修正作品",s:"V1、V2…",c:"var(--c6)",i:"🛠️ 進行實質修改，保留版本紀錄，看見每一版之間的差距。"},
+ {n:"⑤ 反思創造",s:"遷移與突破",c:"var(--c7)",i:"✨ 說出自己學到什麼，再提出一個 AI 沒想到的「第三選項」。"}
+];
+const QUIZ=[
+ {q:"🌱 我想先弄懂核心理念與理論",p:[6,8,5]},
+ {q:"📝 我需要能直接上課的流程",p:[1,3,4]},
+ {q:"🤖 我想要現成的提示詞／產生器",p:[2,4,1]},
+ {q:"🏫 我想看各科的教學實例",p:[3,5,7]},
+ {q:"📊 我在設計評量與 Rubric",p:[4,6,7]},
+ {q:"🎯 我想讓學生做測驗或練習",p:[1,2,3]}
+];
+
+/* ---------- storage (safe) ---------- */
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+             set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let visited=new Set(store.get("hubVisited",[]));
+let soundOn=store.get("hubSound",true);
+
+/* ---------- sounds (Web Audio, no files) ---------- */
+let ac=null;
+function ctx(){if(!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(ac&&ac.state==="suspended")ac.resume();return ac}
+function tone(freq,dur=.12,type="sine",vol=.18,delay=0){
+  if(!soundOn)return;const a=ctx();if(!a)return;
+  const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+delay;
+  o.type=type;o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g).connect(a.destination);o.start(t);o.stop(t+dur+.02);
+}
+const SFX={
+  hover:()=>tone(880,.05,"sine",.05),
+  click:()=>{tone(660,.08,"triangle");tone(990,.1,"triangle",.14,.06)},
+  open:()=>{[523,659,784,1047].forEach((f,i)=>tone(f,.14,"triangle",.16,i*.07))},
+  pop:()=>tone(520,.09,"square",.08),
+  step:i=>tone([523,587,659,784,880][i]||660,.22,"triangle",.18),
+  dice:()=>{for(let i=0;i<7;i++)tone(300+Math.random()*700,.05,"square",.07,i*.06)},
+  win:()=>{[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.2,"triangle",.18,i*.11))},
+  close:()=>{tone(700,.08,"sine",.12);tone(450,.12,"sine",.12,.07)}
+};
+
+/* ---------- font size ---------- */
+const fsBtns=document.querySelectorAll("[data-fs]");
+function setFs(v,silent){document.documentElement.style.setProperty("--fs",v+"px");fsBtns.forEach(b=>b.classList.toggle("on",b.dataset.fs==v));store.set("hubFs",v);if(!silent)SFX.pop()}
+fsBtns.forEach(b=>b.onclick=()=>setFs(b.dataset.fs));
+const savedFs=store.get("hubFs",null); if(savedFs && innerWidth>600) setFs(savedFs,true);
+
+/* ---------- sound toggle ---------- */
+const sndBtn=document.getElementById("sndBtn");
+function paintSnd(){sndBtn.textContent=soundOn?"🔊 音效開":"🔇 音效關";sndBtn.classList.toggle("on",!soundOn)}
+sndBtn.onclick=()=>{soundOn=!soundOn;store.set("hubSound",soundOn);paintSnd();SFX.click()};paintSnd();
+
+/* ---------- toast ---------- */
+let tt;function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),2200)}
+
+/* ---------- cycle ---------- */
+const cyc=document.getElementById("cycle"),cycInfo=document.getElementById("cycInfo");
+CYCLE.forEach((s,i)=>{
+  const b=document.createElement("button");b.className="node";b.style.background=s.c;b.innerHTML=s.n+"<small>"+s.s+"</small>";
+  b.onclick=()=>{stopPlay();showStep(i)};cyc.appendChild(b);
+  if(i<CYCLE.length-1){const a=document.createElement("span");a.className="arrow";a.textContent="➜";cyc.appendChild(a)}
+});
+const arrowBack=document.createElement("span");arrowBack.className="arrow";arrowBack.textContent="↺";cyc.appendChild(arrowBack);
+function showStep(i){cyc.querySelectorAll(".node").forEach((n,k)=>n.classList.toggle("act",k===i));cycInfo.innerHTML=CYCLE[i].i;cycInfo.style.borderLeftColor=CYCLE[i].c;SFX.step(i)}
+let playT=null;const playBtn=document.getElementById("playBtn");
+function stopPlay(){clearInterval(playT);playT=null;playBtn.textContent="▶ 自動播放"}
+playBtn.onclick=()=>{if(playT){stopPlay();return}let i=0;showStep(0);playBtn.textContent="⏸ 暫停";
+  playT=setInterval(()=>{i++;if(i>=CYCLE.length){stopPlay();toast("🎉 完成一輪迭代！再來一輪會更好");SFX.win();return}showStep(i)},2200)};
+
+/* ---------- cards ---------- */
+const grid=document.getElementById("grid");
+PAGES.forEach((p,i)=>{
+  const el=document.createElement("article");el.className="card";el.style.animationDelay=(i*.07)+"s";el.dataset.i=i;
+  el.innerHTML=`<div class="chead" style="background:linear-gradient(135deg,${p.c},color-mix(in srgb,${p.c} 70%,#fff))">
+     <span class="seen">✔ 已看過</span><span class="num">${i+1}</span><span class="emo">${p.e}</span><h3>${p.t}</h3></div>
+   <div class="cbody"><p>${p.d}</p><div class="tags">${p.tags.map(t=>`<span class="tag">#${t}</span>`).join("")}</div>
+     <div class="acts"><a class="go" style="background:${p.c}" href="${encodeURI(p.f)}">🚀 開啟網頁</a><button class="pv" type="button">👀 預覽</button></div>
+     <span class="key">快捷鍵：${i+1}</span></div>`;
+  el.querySelector(".go").addEventListener("click",ev=>{ev.preventDefault();openPage(i)});
+  el.querySelector(".pv").addEventListener("click",()=>preview(i));
+  el.addEventListener("mouseenter",SFX.hover);
+  grid.appendChild(el);
+});
+function openPage(i){markVisited(i);SFX.open();setTimeout(()=>location.href=encodeURI(PAGES[i].f),280)}
+
+/* progress */
+function paintProgress(){
+  document.querySelectorAll(".card").forEach(c=>c.classList.toggle("visited",visited.has(+c.dataset.i)));
+  const n=visited.size;document.getElementById("barFill").style.width=(n/PAGES.length*100)+"%";
+  document.getElementById("progTxt").textContent=n+" / "+PAGES.length+(n===PAGES.length?" 🏆":"");
+}
+function markVisited(i){const before=visited.size;visited.add(i);store.set("hubVisited",[...visited]);paintProgress();
+  if(before<PAGES.length&&visited.size===PAGES.length){setTimeout(()=>{confetti();SFX.win();toast("🏆 太棒了！8 個網頁全部看過！")},300)}}
+document.getElementById("resetBtn").onclick=()=>{visited.clear();store.set("hubVisited",[]);paintProgress();SFX.close();toast("進度已重設")};
+paintProgress();
+
+/* filter */
+const allTags=[...new Set(PAGES.flatMap(p=>p.tags))];let curTag="全部";
+const chips=document.getElementById("chips");
+["全部",...allTags].forEach(t=>{const b=document.createElement("button");b.className="chip"+(t==="全部"?" on":"");b.textContent=t==="全部"?"🌈 全部":"#"+t;
+  b.onclick=()=>{curTag=t;chips.querySelectorAll(".chip").forEach(c=>c.classList.toggle("on",c===b));SFX.pop();applyFilter()};chips.appendChild(b)});
+const search=document.getElementById("search");search.addEventListener("input",applyFilter);
+function applyFilter(){
+  const q=search.value.trim().toLowerCase();let shown=0;
+  document.querySelectorAll(".card").forEach(c=>{const p=PAGES[c.dataset.i];
+    const ok=(curTag==="全部"||p.tags.includes(curTag))&&(!q||(p.t+p.d+p.tags.join("")).toLowerCase().includes(q));
+    c.style.display=ok?"":"none";if(ok)shown++});
+  document.getElementById("empty").style.display=shown?"none":"block";
+}
+
+/* random */
+function randomPick(){
+  SFX.dice();const cards=[...document.querySelectorAll(".card")];let k=0,i=0;
+  const spin=setInterval(()=>{cards.forEach(c=>c.style.outline="");i=Math.floor(Math.random()*cards.length);cards[i].style.outline="5px solid var(--c3)";k++;
+    if(k>9){clearInterval(spin);cards[i].scrollIntoView({behavior:"smooth",block:"center"});SFX.click();toast("🎲 推薦你看：第 "+(i+1)+" 頁「"+PAGES[i].t+"」");
+      setTimeout(()=>cards[i].style.outline="",3000)}},110);
+}
+document.getElementById("rndBtn").onclick=randomPick;
+
+/* quiz */
+const qopts=document.getElementById("qopts"),qres=document.getElementById("qres");
+QUIZ.forEach(o=>{const b=document.createElement("button");b.className="qopt";b.textContent=o.q;
+  b.onclick=()=>{SFX.click();qopts.querySelectorAll(".qopt").forEach(x=>x.style.borderColor="");b.style.borderColor="var(--c7)";
+    qres.innerHTML="👉 推薦閱讀："+o.p.map(n=>`<a href="#" data-n="${n-1}">${PAGES[n-1].e} 第${n}頁 ${PAGES[n-1].t}</a>`).join("、");
+    qres.querySelectorAll("a").forEach(a=>a.onclick=e=>{e.preventDefault();preview(+a.dataset.n)})};
+  qopts.appendChild(b)});
+
+/* modal */
+const modal=document.getElementById("modal"),mframe=document.getElementById("mframe");
+function preview(i){const p=PAGES[i];SFX.click();
+  document.getElementById("mtitle").textContent=p.e+" "+(i+1)+"．"+p.t;
+  document.getElementById("mhead").style.background=p.c;
+  const mo=document.getElementById("mopen");mo.href=encodeURI(p.f);mo.onclick=e=>{e.preventDefault();openPage(i)};
+  mframe.src=encodeURI(p.f);modal.classList.add("show");markVisited(i)}
+function closeModal(){if(!modal.classList.contains("show"))return;modal.classList.remove("show");mframe.src="about:blank";SFX.close()}
+document.getElementById("mclose").onclick=closeModal;
+modal.addEventListener("click",e=>{if(e.target===modal)closeModal()});
+
+/* keyboard */
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT"||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==="Escape")closeModal();
+  else if(/^[1-8]$/.test(e.key))openPage(+e.key-1);
+  else if(e.key==="r"||e.key==="R")randomPick();
+});
+
+/* confetti */
+function confetti(){
+  const cv=document.getElementById("confetti"),g=cv.getContext("2d");cv.width=innerWidth;cv.height=innerHeight;
+  const cols=["#ff5d73","#ff9f1c","#ffd23f","#3ddc97","#2ec4b6","#4d9de0","#7b5cff","#e15fd8"];
+  const ps=Array.from({length:180},()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,r:5+Math.random()*7,c:cols[Math.random()*8|0],vy:2+Math.random()*4,vx:-2+Math.random()*4,a:Math.random()*6,va:-.2+Math.random()*.4}));
+  let f=0;(function draw(){g.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.a+=p.va;g.save();g.translate(p.x,p.y);g.rotate(p.a);g.fillStyle=p.c;g.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);g.restore()});
+    if(++f<240)requestAnimationFrame(draw);else g.clearRect(0,0,cv.width,cv.height)})();
+}
+</script>
+</body>
+</html>
